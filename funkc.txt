@@ -1,0 +1,77 @@
+ 3.2, 3.6, 3.9, 3.10, 3.16, 6
+
+3.2
+Na stranici za registraciju/prijavu na sistem pomoću korisnikove email adrese i
+lozinke može se izvršiti prijava.
+Ukoliko korisnik još uvek nije registrovan na sistem, a želi da koristi benefite koje
+aplikacija pruža registrovanim korisnicima, mora prvo da se registruje na
+odgovarajućoj stranici. Registracija obuhvata unos email adrese, lozinke, imena,
+prezimena, adrese prebivališta, grada, države, broja telefona, JMBG, pola,
+zanimanja, informacije o preduzeću/fakultetu/školi. Lozinka se unosi u dva polja
+da bi se otežalo pravljenje grešaka prilikom odabira nove lozinke. Nakon
+popunjavanja neophodnih podataka, na datu email adresu šalje se link za
+aktivaciju naloga. Korisnik ne može da se prijavi na aplikaciju dok se njegov
+nalog ne aktivira posećivanjem linka koji je dobio u emailu.
+Napomena: potrebno je obezbediti bilo kakav mehanizam za autentifikaciju i
+autorizaciju korisnika na serverskoj strani. Za sve funkcionalnosti treba biti
+implementirana autorizacija bez obzira na podelu posla po studentima!
+
+3.6
+Na osnovnoj stranici za autentifikovanog korisnika dostupni su linkovi za:
+● listu centara u sistemu - centri mogu biti sortirane po nazivu, gradu,
+oceni…,
+● istoriju poseta centrima - može biti sortirana po datumu, ceni, trajanju...,
+● uvid u zakazane posete centrima koje se još nisu održale - otkazivanje je
+moguće najkasnije 24 sata do početka,
+● Iistu svih svojih QR kod potvrda zakazanih termina - moguće je sortiranje
+po datumu izdavanja i filtriranje po statusu (nov, obrađen, odbijen),
+● uvid u penale - ukoliko korisnik dobije 3 penala, ne može da izvrši
+rezervaciju termina; penali se brišu svakog prvog dana u mesecu,
+● stranicu za popunjavanje upitnika o davaocu krvi (npr. kao na linku)
+● stranicu za pisanje žalbe,
+● profil korisnika.
+Napomena: samo su nabrojane stranice do kojih korisnik sa svog profila treba
+da stigne. Studentima se prepušta organizacija stranica i izgled istih.
+
+
+3.9. Postupak zakazivanja predefinisanog termina u centru -
+registrovani korisnik
+Na stranici centra postoji link ka listi unapred kreiranih termina koji se mogu
+sortirati po datumu i vremenu. Administrator centra jedini može unapred da kreira
+termine. Registrovani korisnik jednim klikom rezerviše termin i na email dobija
+potvrdu o zakazivanju pregleda u vidu QR koda sa svim informacijama.
+Napomena: Korisnik može da zakaže termin samo ako na svom profilu ima
+popunjen upitnik. Korisnik može da zakaže termin samo ako nije dao krv u
+prethodnih 6 meseci.
+
+
+3.10. Postupak otkazivanja termina - registrovani korisnik
+Registrovani korisnik iz liste budućih zakazanih termina može da otkaže termin u
+centru najkasnije 24h do početka. Nakon otkazivanja termina, potrebno je
+omogućiti drugima registrovanim korisnicima da isti pokušaju da zakažu.
+Registrovani korisnik samo jednom može da zakaže termin u istom centru u isto
+vreme
+
+
+
+3.16. Postupak pisanja i odgovaranja na žalbe
+Korisnik može da piše žalbu za:
+● centar (samo ukoliko je imao održan bar jedan pregled u centru),
+● osoblje (samo ukoliko je imao održan bar jedan pregled u centru gde radi
+osoblje).
+Tekst žalbe se unosi u slobodnoj formi.
+Administrator sistema vidi sve žalbe na koje može da odgovori. Odgovor se
+unosi u slobodnoj formi i šalje se korisniku na email.
+Korisnik treba da vidi istoriju žalbi koje je podneo i odgovore na njih.
+Administrator sistema treba da vidi istoriju svih žalbi na koje je odgovorio.
+
+
+6. Simulator lokacija
+Potrebno je implementirati aplikaciju koja će simulirati kretanje vozila za dostavu
+krvi u skoro “realnom” vremenu. Aplikacija treba da generiše koordinate putanje
+vozila od tačke A do tačke B i šalje ih na asinhrono procesiranje platformi (Kafka,
+RabbitMQ, ActiveMQ, itd) koja dalje šalje te koordinate glavnom sistemu centara
+za davanje krvi. Glavni sistem prikazuje te informacije, na mapi ili na stranici
+praćenja vozila. Frekvencija slanja koordinata (pozicije vozila na putu) treba da
+bude konfigurabilna (npr. svake sekunde, svake 3s, 30s, 1min, itd). Primer toka
+komunikacije prikazan je na slici:
