@@ -1,7 +1,8 @@
 package ISA.cofiguration;
 
 
-import ISA.Service.User.UserDetailsServiceImpl;
+import ISA.Service.ComplaintServiceImpl;
+import ISA.Service.UserDetailsServiceImpl;
 import ISA.security.AuthEntryPointJwt;
 import ISA.security.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,14 +1,12 @@
-package ISA.Service.BloodBank;
+package ISA.Service;
 
 import ISA.Model.Appointment;
 import ISA.Model.DTO.SheduleAppointmentDTO;
 import ISA.Model.Donor;
 import ISA.Repository.AppointmentsRepository;
-import ISA.Repository.KorisnikRepository;
-import ISA.Service.EmailSender;
+import ISA.Repository.UserRepository;
 import ISA.enums.AppStatus;
 import com.google.zxing.WriterException;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +15,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class AppointmentService {
-     @Autowired
-     private AppointmentsRepository _appointmentrepository;
-     @Autowired
-     private KorisnikRepository _userRepository;
-     @Autowired
-     private QRCodeService _qrcodeService;
+public class AppointmentServiceImpl implements AppointmentService {
+    @Autowired
+    private AppointmentsRepository _appointmentrepository;
+    @Autowired
+    private UserRepository _userRepository;
+    @Autowired
+    private ISA.Service.QRCodeService _qrcodeService;
 
-     @Autowired
-     private EmailSender _emailSender;
-    public Appointment sheduleAppointment(SheduleAppointmentDTO dto) throws IOException, WriterException{
+    @Autowired
+    private EmailSender _emailSender;
+    public Appointment sheduleAppointment(SheduleAppointmentDTO dto) throws IOException, WriterException {
         Appointment app=_appointmentrepository.findById(dto.appointmentId).get();
         Donor donor =(Donor) _userRepository.findByEmail(dto.donorEmail);
         List<Appointment> apps=donor.getAppointmentList();
@@ -41,9 +39,9 @@ public class AppointmentService {
         }
         app.setStatus(AppStatus.Sheduled);
         String qrcodeText="Vas termin za transfuziju krvi zakazen je u banci krvi "+app.getBloodBank().getName() +", datuma "+
-                           app.getTime().toLocalDate() + "sa pocetkom u "+ app.getTime().toLocalTime() +
+                app.getTime().toLocalDate() + "sa pocetkom u "+ app.getTime().toLocalTime() +
                 "casova i predvidjeno vreme trajanja je "+ app.getDuration() +"minuta.";
-         byte[] code= _qrcodeService.generateQRCodeImage(qrcodeText);
+        byte[] code= _qrcodeService.generateQRCodeImage(qrcodeText);
         app.setQRCode(code);
         donor.getAppointmentList().add(app);
         _appointmentrepository.save(app);
@@ -52,7 +50,7 @@ public class AppointmentService {
         _appointmentrepository.save(app);
         _emailSender.sendQRCodeEmail(dto.donorEmail,"QR code for bloodbank appointment", code);
 
-       return app;
+        return app;
     }
 
     public void cancelAppointment(SheduleAppointmentDTO dto) {

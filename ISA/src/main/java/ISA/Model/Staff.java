@@ -31,7 +31,7 @@ public class Staff extends User {
         this.setSurname(e.surname);
         this.setEmail(e.email);
         this.setPassword(e.password);
-        this.setRole(Role.Admin_centra);
+        this.setRole(Role.SystemAdmin);
         this.setActivated(true);
     }
 }

@@ -13,8 +13,7 @@ import lombok.Setter;
 @Entity
 @Table(name="QuestionText")
 public class QuestionText {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+   @Id
     private Long id;
     public String text;
 }

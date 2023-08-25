@@ -1,10 +1,14 @@
 package ISA.Service;
 
-import ISA.Repository.AppointmentsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import ISA.Model.Appointment;
+import ISA.Model.DTO.SheduleAppointmentDTO;
+import com.google.zxing.WriterException;
 
-public class AppointmentService {
+import java.io.IOException;
 
-    @Autowired
-    private AppointmentsRepository appointmentsRepository;
+public interface AppointmentService {
+
+    public Appointment sheduleAppointment(SheduleAppointmentDTO dto) throws IOException, WriterException;
+    public void cancelAppointment(SheduleAppointmentDTO dto);
+    public boolean checkTime(Long appointmentId);
 }

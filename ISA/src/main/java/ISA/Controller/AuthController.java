@@ -8,8 +8,8 @@ import ISA.Model.DTO.LoginRequest;
 import ISA.Model.DTO.SingupRequest;
 import ISA.Model.User;
 import ISA.Model.response.JwtResponse;
-import ISA.Repository.KorisnikRepository;
-import ISA.Service.KorisnikService;
+import ISA.Repository.UserRepository;
+import ISA.Service.UserService;
 import ISA.security.JwtUtils;
 
 
@@ -40,9 +40,9 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    KorisnikService  korisnikService;
+    UserService IUserService;
     @Autowired
-    KorisnikRepository userRepository;
+    UserRepository userRepository;
 
 
     @Autowired
@@ -97,50 +97,11 @@ public class AuthController {
         }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        // Password to be encoded
-
-
-        // Encode the password
-
-
-        // Create new user's account
         User user = new User(signUpRequest);
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
-        User kk= korisnikService.RegisterKorisnik(user);
-       /* Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
+        User kk= IUserService.RegisterKorisnik(user);
 
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-
-                        break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-*/
-        return ResponseEntity.ok("User registered successfully, email for validation is send!");
+        return ResponseEntity.ok("User registered successfully, email for validation is sent!");
     }
 
 }

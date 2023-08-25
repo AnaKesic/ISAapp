@@ -54,7 +54,7 @@ public class User {
     this.jmbg=dto.getJmbg();
     this.activated=false;
     this.jobInfo=dto.getJobInfo();
-    this.role=Role.Korisnik;
+    this.role=Role.Donor;
 
 
 

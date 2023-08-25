@@ -1,5 +1,10 @@
 package ISA.Service;
 
+import ISA.Model.Appointment;
+import ISA.Model.Donor;
+import ISA.Model.Questionnaire;
+import ISA.Repository.UserRepository;
+import ISA.enums.AppStatus;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
@@ -9,6 +14,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmailSender {
@@ -43,4 +51,8 @@ public class EmailSender {
         mailSender.send(message);
 
     }
-}
+
+
+
+
+    }

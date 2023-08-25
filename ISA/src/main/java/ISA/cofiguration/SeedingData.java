@@ -3,7 +3,8 @@ package ISA.cofiguration;
 import ISA.Model.*;
 import ISA.Repository.AppointmentsRepository;
 import ISA.Repository.BloodbankRepository;
-import ISA.Repository.KorisnikRepository;
+import ISA.Repository.QuestionTextRepository;
+import ISA.Repository.UserRepository;
 import ISA.enums.AppStatus;
 import ISA.enums.Role;
 
@@ -13,10 +14,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 @Component
 public class SeedingData {
@@ -27,23 +26,71 @@ public class SeedingData {
     }
 
     @Autowired
-    private KorisnikRepository _korisnikRepository;
+    private UserRepository _userRepository;
     @Autowired
     private AppointmentsRepository _appointmentRepository;
     @Autowired
     private BloodbankRepository _bloodbankRepository;
-
+    @Autowired
+    private QuestionTextRepository qtRepository;
     private void seedData() {
+
+        String[] qus= new String[]
+                { "Da li ste do sada dobrovoljno davali krv ili komponente krvi?",
+                   "Da li ste ikada bili odbijeni kao davalac krvi ili komponente krvi?",
+                "Da li se trenutno osećate zdravim, sposobnim i odmornim da date krv ili komponente krvi?",
+                "Da li ste nešto jeli pre dolaska na davanje krvi ili komponente krvi?",
+                "Da li se bavite opasnim zanimanjem ili hobijem?",
+                "Da li redovno (svakodnevno) uzimate bilo kakve lekove?",
+                "Da li ste poslednja 2-3 dana uzimali bilo kakve lekove (npr. Brufen, Kafetin, Analgin...)?",
+                "Da li stalno uzimate Aspirin (Cardiopirin)? Da li ste ga uzimali u poslednjih 5 dana?",
+                "Da li ste do sada ispitivani ili lečeni u bolnici ili ste trenutno na ispitivanju ili bolovanju?",
+                "Da li ste vadili zub u proteklih 7 dana?",
+                "Da li ste u poslednjih 7 do 10 dana imali temperaturu preko 38 C, kijavicu, prehladu ili uzimali antibiotike?",
+                "Da li ste primili bilo koju vakcinu ili serum u proteklih 12 meseci?",
+                "Da li ste u poslednjih 6 meseci naglo izgubili na težini?",
+                "Da li ste imali ubode krpelja u proteklih 12 meseci i da li ste se zbog toga javljali lekaru?",
+                "Da li ste ikada lečeni od epilepsije (padavice), šećerne bolesti, astme, tuberkuloze, infarkta, moždanog udara, malignih oboljenja, mentalnih bolesti ili malarije?",
+                "Da li bolujete od neke druge hronične bolesti: srca, pluća, bubrega, jetre, želuca i creva, kostiju i zglobova, nervnog sistema, krvi i krvnih sudova?",
+                "Da li ste ikada imali problema sa štitastom žlezdom, hipofizom i/ili primali hormone?",
+                "Da li imate neke promene na koži ili bolujete od alergije?",
+                "Da li dugo krvarite posle povrede ili spontano dobijate modrice?",
+                "Da li ste u proteklih 6 meseci imali neku operaciju ili primili krv?",
+                "Da li ste u proteklih 6 meseci putovali ili živeli u inostranstvu?",
+                "Da li ste u proteklih 6 meseci imali akupunkturu, pirsing ili tetovažu?",
+                "Da li ste pili alkohol u poslednjih 6 sati?",
+                "Da li ste bolovali ili bolujete od hepatitisa (žutice) A, B ili C?",
+                "Da li ste bili u kontaktu ili živite sa osobom obolelom od hepatitisa (žutice)?",
+                "Da li mislite da je postojala mogućnost da se zarazite HIV-om?",
+                "Da li ste ikada koristili bilo koju vrstu droge?",
+                "Da li ste ikada koristili preparate koji se zvanično ne izdaju na recept i/ili preparate za bodi bilding (steroide)?",
+                "Da li ste ikada za pružanje seksualnih usluga uzimali novac ili drogu?",
+                "Da li znate na koje sve načine ste mogli izložiti sebe riziku od zaraznih, krvlju prenosivih bolesti?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite sa osobom koja ima ili je imala hepatitis (žuticu) B ili C?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite sa osobom koja je HIV pozitivna?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite sa osobom koja je ikada za pružanje seksualnih usluga uzimala novac ili drogu?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite sa osobom koja je ikada koristila bilo koju vrstu droge na bilo koji način?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite sa osobom čije Vas je dotadašnje seksualno ponašanje moglo dovesti u rizik dobijanja seksualno prenosive bolesti?",
+                "Da li ste imali seksualne odnose tokom proteklih 6 meseci bez zaštite da li ste Vi imali analne seksualne odnose tokom proteklih 6 meseci?",
+                "Da li ste u drugom stanju?",
+                "Da li trenutno imate menstruaciju?",
+                "Da li ste u poslednjih 6 meseci imali porođaj ili prekid trudnoće?"};
+      for(int i =0; i<qus.length; i++){
+          QuestionText q=new QuestionText((long) i,qus[i]);
+          qtRepository.save(q);
+      }
+
+
 
         Donor donor= new Donor();
         donor.setEmail("andykesic123@gmail.com");
         donor.setPassword(new BCryptPasswordEncoder().encode("admin123"));
         donor.setActivated(true);
-        donor.setRole(Role.Korisnik);
+        donor.setRole(Role.Donor);
         Questionnaire q= new Questionnaire();
         q.setAddmited(LocalDateTime.of(2023,8,05,10,30));
         donor.setQuestionnaire(q);
-        _korisnikRepository.save(donor);
+        _userRepository.save(donor);
 
 
 
@@ -52,16 +99,16 @@ public class SeedingData {
         admin.setSurname("Antonic");
         admin.setEmail("admin@mail.com");
         admin.setPassword(new BCryptPasswordEncoder().encode("admin123"));
-        admin.setRole(Role.Admin_sistema);
+        admin.setRole(Role.SystemAdmin);
         admin.setActivated(true);
-        _korisnikRepository.save(admin);
+        _userRepository.save(admin);
 
         Staff staff1= new Staff();
         staff1.setName("Janko");
         staff1.setSurname("Tipsarevic");
         staff1.setEmail("janko@mail.com");
         staff1.setPassword(new BCryptPasswordEncoder().encode("janko123"));
-        staff1.setRole(Role.Admin_centra);
+        staff1.setRole(Role.SystemAdmin);
         staff1.setActivated(true);
 
 
@@ -70,7 +117,7 @@ public class SeedingData {
         staff2.setSurname("Jaksic");
         staff2.setEmail("lenka@mail.com");
         staff2.setPassword(new BCryptPasswordEncoder().encode("lenka123"));
-        staff2.setRole(Role.Admin_centra);
+        staff2.setRole(Role.SystemAdmin);
         staff2.setActivated(true);
 
 
@@ -79,7 +126,7 @@ public class SeedingData {
         staff3.setSurname("Belic");
         staff3.setEmail("kolja@mail.com");
         staff3.setPassword(new BCryptPasswordEncoder().encode("kolja123"));
-        staff3.setRole(Role.Admin_centra);
+        staff3.setRole(Role.SystemAdmin);
         staff3.setActivated(true);
 
 
@@ -88,7 +135,7 @@ public class SeedingData {
         staff4.setSurname("Krunic");
         staff4.setEmail("gala@mail.com");
         staff4.setPassword(new BCryptPasswordEncoder().encode("gala123"));
-        staff4.setRole(Role.Admin_centra);
+        staff4.setRole(Role.SystemAdmin);
         staff4.setActivated(true);
 
 
@@ -177,7 +224,7 @@ public class SeedingData {
         app5.setDoctor(staff4);
 
         _bloodbankRepository.save(bb2);
-        _korisnikRepository.save(admin);
+        _userRepository.save(admin);
 
 
 

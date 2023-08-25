@@ -23,7 +23,7 @@ public class Questionnaire {
     private LocalDateTime addmited;
     @OneToOne
     private Donor donor;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<Question> questionList;
 
 

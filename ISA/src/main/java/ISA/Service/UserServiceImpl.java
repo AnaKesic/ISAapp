@@ -3,14 +3,13 @@ package ISA.Service;
 import ISA.Model.*;
 import ISA.Model.DTO.*;
 import ISA.Repository.BloodbankRepository;
-import ISA.Repository.KorisnikRepository;
+import ISA.Repository.UserRepository;
 import ISA.enums.AppStatus;
 import ISA.enums.FilterApp;
-import org.hibernate.query.sqm.mutation.internal.temptable.LocalTemporaryTableInsertStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,9 +17,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class KorisnikServiceImpl implements KorisnikService {
+public class UserServiceImpl implements UserService {
     @Autowired
-    private KorisnikRepository _korisnkRepository;
+    private UserRepository _korisnkRepository;
 
     @Autowired
     private EmailSender _emailSender;
@@ -249,6 +248,36 @@ public class KorisnikServiceImpl implements KorisnikService {
         }
         return response;
     }
+
+    public void IsDonorExceptable(String email){
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime sixMonthsAgo = currentDate.minusMonths(6);
+        Donor donor=(Donor) _korisnkRepository.findByEmail(email);
+        Questionnaire q= donor.getQuestionnaire();
+
+        if(q==null ){
+            throw  new Error("Please answer questionnaire before sheduling appointment");
+        }
+        if(q.getAddmited().isBefore(sixMonthsAgo)){
+            throw  new Error("Please answer questionnaire before sheduling appointment");
+        }
+
+
+        List<Appointment> appointments= donor.getAppointmentList();
+        if(appointments!=null) {
+            boolean hasAppointmentBeforeSixMonthsAgo = appointments.stream()
+                    .anyMatch(appointment -> appointment.getTime().isAfter(sixMonthsAgo) &&
+                            appointment.getStatus()== AppStatus.Finished);
+
+            if (hasAppointmentBeforeSixMonthsAgo) {
+                throw new Error("You cannot schedule appointment, because you gave blood less then a six mounts ago");
+            }
+        }
+
+    }
+
+
+
     public void ActivateEmail(User k) {
      _emailSender.sendActivationEmail(k.getEmail(),"Aktivacija naloga", "Posetite link da aktivirate profil u nasoj banci:" + "http://localhost:3000/activate/"+k.getId());
 
