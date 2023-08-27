@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface BloodBankService {
     public List<BloodBank> getAll();
-    public List<Appointment> getAllAppointments(Long id);
+    public List<Appointment> getAllAvailableAppointments(Long id);
 }

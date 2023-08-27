@@ -3,6 +3,7 @@ package ISA.Controller;
 import ISA.Model.User;
 import ISA.Service.UserService;
 import ISA.enums.FilterApp;
+import ISA.enums.FilterQR;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,16 @@ public class UserController {
                  return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(e.getMessage());
              }
         }
+
+    @GetMapping("/sortQRAppointments")
+    public ResponseEntity SortQRAppointments(@RequestParam String email,
+                                             @RequestParam FilterQR filter){
+        try{
+            return ResponseEntity.ok().body(_korisnikservice.sortQROfDonorAppointments(email,filter));}
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(e.getMessage());
+        }
+    }
         @GetMapping("/getSheduledDonorAppointments")
         public ResponseEntity getSheduledDonorAppointments(@RequestParam(name="email") String email){
           try{

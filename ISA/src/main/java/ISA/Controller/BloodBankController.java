@@ -25,6 +25,6 @@ public class BloodBankController {
 
   @GetMapping("/getAllAppointments")
   public ResponseEntity<List<Appointment>> getAllAppointments(@RequestParam(name="Id") Long e) {
-    return ResponseEntity.ok().body(bloodBankService.getAllAppointments(e));
+    return ResponseEntity.ok().body(bloodBankService.getAllAvailableAppointments(e));
   }
 }

@@ -25,6 +25,7 @@ public class Appointment {
     @GeneratedValue(strategy= GenerationType.AUTO)
     public Long Id;
     public LocalDateTime time;
+    public LocalDateTime timeofSheduling;
     public int duration;
 
     @ManyToOne

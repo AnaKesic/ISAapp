@@ -9,6 +9,8 @@ import ISA.enums.AppStatus;
 import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private EmailSender _emailSender;
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Appointment sheduleAppointment(SheduleAppointmentDTO dto) throws IOException, WriterException {
         Appointment app=_appointmentrepository.findById(dto.appointmentId).get();
         Donor donor =(Donor) _userRepository.findByEmail(dto.donorEmail);
@@ -38,9 +41,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
         app.setStatus(AppStatus.Sheduled);
-        String qrcodeText="Vas termin za transfuziju krvi zakazen je u banci krvi "+app.getBloodBank().getName() +", datuma "+
-                app.getTime().toLocalDate() + "sa pocetkom u "+ app.getTime().toLocalTime() +
-                "casova i predvidjeno vreme trajanja je "+ app.getDuration() +"minuta.";
+        app.setTimeofSheduling(LocalDateTime.now());
+        String qrcodeText="Banka krvi:"+app.getBloodBank().getName()+"-Adresa:"+app.getBloodBank().getAddress().street+", "+app.getBloodBank().getAddress().number+", "+app.getBloodBank().getAddress().city+", "+app.getBloodBank().getAddress().state+"-Doktor:"+app.getDoctor().getName()+" "+ app.getDoctor().getSurname()+"-Status:Sheduled"+"-Datum:" +app.getTime()+"-Datum rezervisanja:" +app.getTimeofSheduling();
         byte[] code= _qrcodeService.generateQRCodeImage(qrcodeText);
         app.setQRCode(code);
         donor.getAppointmentList().add(app);
@@ -53,6 +55,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return app;
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void cancelAppointment(SheduleAppointmentDTO dto) {
         Appointment app=_appointmentrepository.findById(dto.appointmentId).get();
         Donor donor =(Donor) _userRepository.findByEmail(dto.donorEmail);
@@ -71,7 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         _appointmentrepository.save(app);
 
     }
-
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public boolean checkTime(Long appointmentId) {
         Appointment app=_appointmentrepository.findById(appointmentId).get();
         LocalDateTime currentDate = LocalDateTime.now();

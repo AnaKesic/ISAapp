@@ -7,6 +7,8 @@ import ISA.Model.DTO.ShowComplaintDTO;
 import ISA.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,9 @@ public class ComplaintServiceImpl implements ComplaintService{
     UserRepository _userRepository;
     @Autowired
     BloodbankRepository _bloodBankRepository;
+
+    @Autowired
+    EmailSender emailSender;
 
     public void AddNew(ComplaintDTO dto) {
         Complaint complaint = new Complaint();
@@ -40,7 +45,7 @@ public class ComplaintServiceImpl implements ComplaintService{
         _userRepository.save(donor);
 
     }
-
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void Answer(AnswerComplaintDTO dto){
          Complaint complaint= _complaintRepository.findById(dto.complaintId).get();
          complaint.answer=dto.answer;
@@ -49,6 +54,9 @@ public class ComplaintServiceImpl implements ComplaintService{
          _complaintRepository.save(complaint);
          admin.getComplaintsAdmin().add(complaint);
          _userRepository.save(admin);
+         String text= "Administartor je odgovorio na vasu zalbu. Text zalbe:" +complaint.text+ ".    Odgovor:"
+                 +complaint.answer+".";
+         emailSender.sendActivationEmail(complaint.donor.getEmail(),"Odgovor na zalbu", text);
 
     }
 

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import ISA.Model.DTO.Activate;
 import ISA.Model.DTO.LoginRequest;
 import ISA.Model.DTO.SingupRequest;
+import ISA.Model.Donor;
 import ISA.Model.User;
 import ISA.Model.response.JwtResponse;
 import ISA.Repository.UserRepository;
@@ -82,6 +83,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Error: Aktivacioni link nije ispravan!");
         }
         korisnik.get().setActivated(true);
+
         userRepository.save(korisnik.get());
         return  ResponseEntity.ok().body("Akivacija profila uspesna!");
     }
@@ -97,9 +99,9 @@ public class AuthController {
         }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        User user = new User(signUpRequest);
+        Donor user = new Donor(signUpRequest);
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
-        User kk= IUserService.RegisterKorisnik(user);
+        Donor kk= IUserService.RegisterKorisnik(user);
 
         return ResponseEntity.ok("User registered successfully, email for validation is sent!");
     }

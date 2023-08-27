@@ -130,7 +130,12 @@
 			<artifactId>assistant</artifactId>
 			<version>11.0.0</version>
 		</dependency>
-		<!-- Thanks for using https://jar-download.com -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Thanks for using https://jar-download.com -->
 
 		<!-- Thanks for using https://jar-download.com -->
 

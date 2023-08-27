@@ -1,27 +1,29 @@
 package ISA.cofiguration;
 
 import ISA.Model.*;
-import ISA.Repository.AppointmentsRepository;
-import ISA.Repository.BloodbankRepository;
-import ISA.Repository.QuestionTextRepository;
-import ISA.Repository.UserRepository;
+import ISA.Repository.*;
+import ISA.Service.QRCodeService;
 import ISA.enums.AppStatus;
 import ISA.enums.Role;
 
+import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class SeedingData {
 
     @EventListener
-    public void seed(ContextRefreshedEvent event) {
+    public void seed(ContextRefreshedEvent event) throws IOException, WriterException {
         seedData();
     }
 
@@ -33,7 +35,14 @@ public class SeedingData {
     private BloodbankRepository _bloodbankRepository;
     @Autowired
     private QuestionTextRepository qtRepository;
-    private void seedData() {
+  @Autowired
+  private ComplaintRepository _complaintRepository;
+  @Autowired
+  private QuestionnaireRepository _questionnaireRepository;
+
+  @Autowired
+  private QRCodeService qr;
+    private void seedData() throws IOException, WriterException {
 
         String[] qus= new String[]
                 { "Da li ste do sada dobrovoljno davali krv ili komponente krvi?",
@@ -87,10 +96,13 @@ public class SeedingData {
         donor.setPassword(new BCryptPasswordEncoder().encode("admin123"));
         donor.setActivated(true);
         donor.setRole(Role.Donor);
+        donor.setAddress(new Address("stefa nem","13","kac","ssasa"));
         Questionnaire q= new Questionnaire();
         q.setAddmited(LocalDateTime.of(2023,8,05,10,30));
         donor.setQuestionnaire(q);
         _userRepository.save(donor);
+        q.setDonor(donor);
+        _questionnaireRepository.save(q);
 
 
 
@@ -98,6 +110,7 @@ public class SeedingData {
         admin.setName("Nikola");
         admin.setSurname("Antonic");
         admin.setEmail("admin@mail.com");
+        admin.setAddress(new Address("fdf","dsd","dsad","dasd"));
         admin.setPassword(new BCryptPasswordEncoder().encode("admin123"));
         admin.setRole(Role.SystemAdmin);
         admin.setActivated(true);
@@ -140,6 +153,10 @@ public class SeedingData {
 
 
 
+
+
+
+
         Appointment app1 = new Appointment();
         app1.status= AppStatus.Free;
         app1.duration=30;
@@ -151,10 +168,28 @@ public class SeedingData {
         app2.duration=30;
         app2.time= LocalDateTime.of(2023, 8, 02,13,30);
 
+      Appointment appDonor2= new Appointment();
+      appDonor2.setTimeofSheduling(LocalDateTime.of(2023,8,16,10,30));
+
+      appDonor2.setTime(LocalDateTime.of(2022,8,22,16,30));
+      appDonor2.setStatus(AppStatus.Finished);
+      appDonor2.setDuration(30);
+      appDonor2.setPrice(3000);
+
+
+      Appointment appDonor3= new Appointment();
+      appDonor3.setTimeofSheduling(LocalDateTime.of(2023,8,23,10,30));
+
+      appDonor3.setTime(LocalDateTime.of(2022,8,30,16,30));
+      appDonor3.setStatus(AppStatus.Declined);
+      appDonor3.setDuration(35);
+      appDonor3.setPrice(4000);
 
         List<Appointment> applist1= new ArrayList<>();
         applist1.add(app1);
         applist1.add(app2);
+        applist1.add(appDonor2);
+        applist1.add(appDonor3);
 
         Appointment app3 = new Appointment();
         app3.status= AppStatus.Free;
@@ -174,11 +209,18 @@ public class SeedingData {
         app5.time=LocalDateTime.of(2023, 8, 02,11,30);
 
 
+      Appointment appDonor1= new Appointment();
+      appDonor1.setTimeofSheduling(LocalDateTime.of(2023,8,14,13,30));
+      appDonor1.setTime(LocalDateTime.of(2022,8,16,14,30));
+      appDonor1.setStatus(AppStatus.Finished);
+      appDonor1.setDuration(40);
+      appDonor1.setPrice(2000);
+
         List<Appointment> applist2= new ArrayList<>();
         applist2.add(app3);
         applist2.add(app4);
         applist2.add(app5);
-
+        applist2.add(appDonor1);
         BloodBank bb1= new BloodBank();
         BloodBank bb2= new BloodBank();
         bb1.setName("Banka krvi Laza Lazarevic");
@@ -200,6 +242,10 @@ public class SeedingData {
         app2.setBloodBank(bb1);
         app1.setDoctor(staff1);
         app2.setDoctor(staff2);
+        appDonor2.setBloodBank(bb1);
+        appDonor2.setDoctor(staff2);
+        appDonor3.setBloodBank(bb1);
+        appDonor3.setDoctor(staff2);
         _bloodbankRepository.save(bb1);
 
         bb2.setName("Banka krvi Bosko Buha");
@@ -222,9 +268,36 @@ public class SeedingData {
         app4.setDoctor(staff4);
         app5.setBloodBank(bb2);
         app5.setDoctor(staff4);
+        appDonor1.setBloodBank(bb2);
+        appDonor1.setDoctor(staff4);
+      _bloodbankRepository.save(bb2);
 
-        _bloodbankRepository.save(bb2);
+      donor.getAppointmentList().add(appDonor1);
+      donor.getAppointmentList().add(appDonor2);
+      donor.getAppointmentList().add(appDonor3);
+
+
+      Complaint c= new Complaint();
+      c.Id=1l;
+      c.text="complaint1";
+      c.bloodBank=bb2;
+      c.donor=donor;
+      donor.getComplaints().add(c);
+
+      _complaintRepository.save(c);
+      _userRepository.save(donor);
+
         _userRepository.save(admin);
+      appDonor1.setPatient(donor);
+      appDonor1.setQRCode(qr.generateQRCodeImage("Banka krvi:"+appDonor1.getBloodBank().getName()+"-Adresa:"+appDonor1.getBloodBank().getAddress().street+", "+appDonor1.getBloodBank().getAddress().number+", "+appDonor1.getBloodBank().getAddress().city+", "+appDonor1.getBloodBank().getAddress().state+"-Doktor:"+appDonor1.getDoctor().getName()+" "+ appDonor1.getDoctor().getSurname()+"-Status:"+appDonor1.getStatus().toString()+"-Datum:" +appDonor1.getTime()+"-Datum rezervisanja:" +appDonor1.getTimeofSheduling()));
+      appDonor2.setPatient(donor);
+      appDonor2.setQRCode(qr.generateQRCodeImage("Banka krvi:"+appDonor2.getBloodBank().getName()+"-Adresa:"+appDonor2.getBloodBank().getAddress().street+", "+appDonor2.getBloodBank().getAddress().number+", "+appDonor2.getBloodBank().getAddress().city+", "+appDonor2.getBloodBank().getAddress().state+"-Doktor:"+appDonor2.getDoctor().getName()+" "+ appDonor2.getDoctor().getSurname()+"-Status:"+appDonor2.getStatus().toString()+"-Datum:" +appDonor2.getTime()+"-Datum rezervisanja:" +appDonor2.getTimeofSheduling()));
+      appDonor3.setPatient(donor);
+      appDonor3.setQRCode(qr.generateQRCodeImage("Banka krvi:"+appDonor3.getBloodBank().getName()+"-Adresa:"+appDonor3.getBloodBank().getAddress().street+", "+appDonor3.getBloodBank().getAddress().number+", "+appDonor3.getBloodBank().getAddress().city+", "+appDonor3.getBloodBank().getAddress().state+"-Doktor:"+appDonor3.getDoctor().getName()+" "+ appDonor3.getDoctor().getSurname()+"-Status:"+appDonor1.getStatus().toString()+"-Datum:" +appDonor3.getTime()+"-Datum rezervisanja:" +appDonor3.getTimeofSheduling()));
+
+      _appointmentRepository.save(appDonor1);
+      _appointmentRepository.save(appDonor2);
+      _appointmentRepository.save(appDonor3);
 
 
 

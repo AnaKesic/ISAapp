@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,11 +31,13 @@ public class QuestionnaireServiceImpl implements QuestionnaireService{
     @Autowired
     public UserRepository userRepository;
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void submitQuestionnaire(String email, List<Boolean> answers) {
         Sort sort = Sort.by(Sort.Order.asc("id"));
         Questionnaire qq= new Questionnaire();
         qq.setAddmited(LocalDateTime.now());
         Donor donor=(Donor) userRepository.findByEmail(email);
+        Questionnaire alex=questionnaireRepository.findByDonorId(donor.getId());
         qq.setDonor(donor);
         List<QuestionText> text= textRepository.findAll(sort);
         List<Question> questions= new ArrayList<>();
@@ -47,18 +51,19 @@ public class QuestionnaireServiceImpl implements QuestionnaireService{
              questions.add(q);
         }
         qq.setQuestionList(questions);
-        Questionnaire alex=donor.getQuestionnaire();
+
         if(alex!=null) {
-            donor.setQuestionnaire(null);
+            alex.setQuestionList(questions);
+            alex.setAddmited(LocalDateTime.now());
             userRepository.save(donor);
-            questionnaireRepository.delete(alex);
+
 
         }
+        else {
+            donor.setQuestionnaire(qq);
+            userRepository.save(donor);
 
-        donor.setQuestionnaire(qq);
-        userRepository.save(donor);
-        return;
-
+        }
 
     }
 

@@ -19,6 +19,7 @@ public class AppointmentDTO {
 
     public Long id;
     public LocalDateTime time;
+    public LocalDateTime sheduledTime;
     public int duration;
     public String doctor;
     public String bloodBank;
@@ -35,6 +36,7 @@ public class AppointmentDTO {
         this.status=app.status;
         this.QRCode=app.QRCode;
         this.doctor=app.doctor.getName() + " "+ app.doctor.getSurname();
+        this.sheduledTime=app.timeofSheduling;
     }
 
 }

@@ -3,11 +3,15 @@ package ISA.Service;
 import ISA.Model.*;
 import ISA.Model.DTO.*;
 import ISA.Repository.BloodbankRepository;
+import ISA.Repository.QuestionnaireRepository;
 import ISA.Repository.UserRepository;
 import ISA.enums.AppStatus;
 import ISA.enums.FilterApp;
+import ISA.enums.FilterQR;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,9 +30,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private BloodbankRepository _bbRepository;
+    @Autowired
+    private QuestionnaireRepository _qRepository;
     @Override
-    public User RegisterKorisnik(User k) {
-         User kk= _korisnkRepository.findByEmail(k.getEmail());
+    public Donor RegisterKorisnik(Donor k) {
+         Donor kk=(Donor) _korisnkRepository.findByEmail(k.getEmail());
          if(kk==null){
 
              _korisnkRepository.save(k);
@@ -187,6 +193,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<AppointmentDTO> sortQROfDonorAppointments(String email, FilterQR filter) {
+        List<AppointmentDTO> apps = getAllDonorAppointments(email);
+        switch (filter) {
+            case date_b_l: {
+                Collections.sort(apps, new Comparator<AppointmentDTO>() {
+                    @Override
+                    public int compare(AppointmentDTO event1, AppointmentDTO event2) {
+                        return event2.sheduledTime.compareTo(event1.sheduledTime);
+                    }
+                });
+                return apps;
+            }
+            case date_l_b: {
+                Collections.sort(apps, new Comparator<AppointmentDTO>() {
+                    @Override
+                    public int compare(AppointmentDTO event1, AppointmentDTO event2) {
+                        return event1.sheduledTime.compareTo(event2.sheduledTime);
+                    }
+                });
+                return apps;
+            }
+            case n:
+                return apps.stream()
+                        .filter(appointment -> appointment.status == AppStatus.Sheduled)
+                        .collect(Collectors.toList());
+            case c:
+                return apps.stream()
+                        .filter(appointment -> appointment.status == AppStatus.Declined)
+                        .collect(Collectors.toList());
+            case f:
+                return apps.stream()
+                        .filter(appointment -> appointment.status == AppStatus.Finished)
+                        .collect(Collectors.toList());
+            default:
+                return apps;
+        }
+    }
+    @Override
     public DataForComplaintDTO getAllAllowed(String email) {
         DataForComplaintDTO data= new DataForComplaintDTO();
         Donor d=(Donor) _korisnkRepository.findByEmail(email);
@@ -249,11 +293,12 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void IsDonorExceptable(String email){
         LocalDateTime currentDate = LocalDateTime.now();
         LocalDateTime sixMonthsAgo = currentDate.minusMonths(6);
         Donor donor=(Donor) _korisnkRepository.findByEmail(email);
-        Questionnaire q= donor.getQuestionnaire();
+        Questionnaire q= _qRepository.findByDonorId(donor.getId());
 
         if(q==null ){
             throw  new Error("Please answer questionnaire before sheduling appointment");

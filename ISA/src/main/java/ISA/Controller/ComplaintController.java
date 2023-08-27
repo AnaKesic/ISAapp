@@ -37,7 +37,7 @@ public class ComplaintController {
     }
 
     @PostMapping("/answer")
-    public ResponseEntity Answer(@Valid AnswerComplaintDTO dto){
+    public ResponseEntity Answer(@Valid @RequestBody AnswerComplaintDTO dto){
         _complaintService.Answer(dto);
         return ResponseEntity.ok("answered successfully");
     }
